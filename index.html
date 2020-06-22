@@ -1,0 +1,116 @@
+<script src="/socket.io/socket.io.js"></script>
+<canvas id="myCanvas"  width="500" height="500" ></canvas>
+</br><p id='points'>Points :0</p>
+</br><button onclick="end()">STOP</button>
+<script>
+    var points=0
+    var life = true
+    var grid_temp
+    var socket = io('http://localhost')
+    socket.on('news', function (data) {
+        grid_temp =data
+        drawGrid(data)
+    });
+
+    socket.on('endGame', function (data) {
+        life=false
+        if(points==data){
+            alert("You win")
+        }
+        else{
+            alert("You lose")
+        }
+    })
+
+    socket.on('points', function (data) {
+        if(data==11) {
+            life=false
+            points = -11
+            left()
+        }
+
+        points = data+points
+        document.getElementById("points").innerHTML ='Points :'+String(points)
+    })
+
+    var a =document.getElementById("myCanvas");
+    a.addEventListener("mousedown", function(event) {
+        if(!life) return
+        var xx = event.pageX
+        var yy= event.pageY
+        var xxx= Math.floor(xx/50)
+        var yyy =Math.floor(yy/50)
+        socket.emit('klik', { my: xxx , mx: yyy})
+    }, false)
+
+    a.addEventListener('mousemove', function(evt) {
+        var xd =a.getBoundingClientRect()
+        var xx = event.pageX -xd.left
+        var yy= event.pageY - xd.top
+        var xxx= Math.floor(xx/50)
+        var yyy =Math.floor(yy/50)
+        bb = a.getContext("2d")
+        drawGrid(grid_temp)
+        bb.fillStyle="rgb(220,20,60,0.4)"
+
+        bb.fillRect(xxx*50 , yyy*50 ,50 ,50)
+    }, false)
+
+
+    function drawGrid(grid){
+        c = document.getElementById("myCanvas")
+        ctx = c.getContext("2d")
+        ctx.font = "30px Arial"
+        for(var i=0; i< grid.length; i++){
+
+            for(var j=0; j<grid[i].length; j++){
+                temp=''
+                if(grid[i][j].hide){
+                    ctx.fillStyle="Blue"
+                }
+                else{
+                    switch(grid[i][j].value){
+
+                        case 0: //puste
+                            ctx.fillStyle="Green"
+                            temp='0'
+                            break
+                        case 11:
+                            ctx.fillStyle="Yellow"
+                            temp ='P'
+                            break
+                        default:
+                            ctx.fillStyle="White"
+                            temp =String(grid[i][j].value)
+                            break
+                    }
+                }
+                ctx.fillRect(i*50,j*50,50,50)
+                ctx.fillStyle="Black"
+
+                ctx.fillText(temp, i*50+15,(j*50)+40)
+            }
+        }
+
+        for (i = 50; i < 500; i += 50)
+        {
+            ctx.moveTo(0, i)
+            ctx.lineTo(c.width, i)
+
+            ctx.moveTo(i, 0)
+            ctx.lineTo(i ,500)
+        }
+
+        ctx.stroke()
+    }
+
+    function end(){
+        life=false
+        left()
+    }
+
+    function left(){
+        socket.emit('wyj', points)
+    }
+</script>
+
