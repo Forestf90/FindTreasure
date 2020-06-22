@@ -11,6 +11,6 @@ Under the tiles players can find
 
 When player find moster he lose all points and his life.
 
-The game ends when all plaers click stop button or loses there lifes.
+The game ends when all players click stop button or loses there lifes.
 
 ![](images/game_js.gif)
