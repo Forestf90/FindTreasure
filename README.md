@@ -13,4 +13,13 @@ When player find moster he lose all points and his life.
 
 The game ends when all players click stop button or loses there lifes.
 
+To run this game use command:
+
+```
+node game.js
+```
+
+and go to localhost:80
+
+
 ![](images/game_js.gif)
